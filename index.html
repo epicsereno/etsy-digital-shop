@@ -628,13 +628,15 @@
       .drop-zone {
         display: grid;
         place-items: center;
-        min-height: 154px;
-        border: 1px dashed #b9aa95;
+        min-height: 186px;
+        border: 2px dashed #b9aa95;
         border-radius: 8px;
+        padding: 18px;
         text-align: center;
         background:
           repeating-linear-gradient(45deg, rgba(40, 121, 91, 0.07) 0 10px, transparent 10px 20px),
           #fffdf8;
+        transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
       }
 
       .drop-zone.is-dragging {
@@ -642,6 +644,7 @@
         background:
           repeating-linear-gradient(45deg, rgba(20, 108, 114, 0.10) 0 10px, transparent 10px 20px),
           #f7fff9;
+        transform: translateY(-1px);
       }
 
       body.dark .drop-zone {
@@ -660,6 +663,15 @@
         font-size: 13px;
       }
 
+      .drop-zone small {
+        display: block;
+        max-width: 270px;
+        margin: 8px auto 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
       .upload-actions {
         display: flex;
         flex-wrap: wrap;
@@ -674,12 +686,51 @@
         margin-top: 12px;
       }
 
+      .file-summary {
+        display: none;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .file-summary.visible {
+        display: grid;
+      }
+
+      .summary-pill {
+        min-width: 0;
+        padding: 9px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-strong);
+      }
+
+      .summary-pill span,
+      .summary-pill strong {
+        display: block;
+      }
+
+      .summary-pill span {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .summary-pill strong {
+        margin-top: 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+
       .file-card {
         display: grid;
-        grid-template-columns: 58px minmax(0, 1fr) 30px;
+        grid-template-columns: 72px minmax(0, 1fr) 30px;
         gap: 10px;
-        align-items: center;
-        padding: 8px;
+        align-items: start;
+        padding: 10px;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel-strong);
@@ -689,8 +740,8 @@
         display: grid;
         place-items: center;
         overflow: hidden;
-        width: 58px;
-        height: 58px;
+        width: 72px;
+        height: 72px;
         border-radius: 8px;
         color: white;
         font-size: 12px;
@@ -721,6 +772,23 @@
         margin-top: 3px;
         color: var(--muted);
         font-size: 12px;
+      }
+
+      .file-controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+        margin-top: 9px;
+      }
+
+      .file-controls .field {
+        min-height: 34px;
+        padding: 0 8px;
+        font-size: 12px;
+      }
+
+      .file-controls .tag-field {
+        grid-column: 1 / -1;
       }
 
       .icon-btn {
@@ -953,6 +1021,7 @@
 
         .stats-grid,
         .product-grid,
+        .file-summary,
         .search-row {
           grid-template-columns: 1fr;
         }
@@ -1121,13 +1190,16 @@
                 <div>
                   <strong id="drop-title">Drop digital files</strong>
                   <span id="drop-copy">PNG, PDF, Canva export, or mockup set</span>
+                  <small>Stage product files, preview artwork, and add metadata before turning them into a draft listing.</small>
                   <div class="upload-actions">
                     <button class="btn" id="browse-files" type="button">Browse Files</button>
+                    <button class="btn primary" id="draft-from-files" type="button">Create Draft</button>
                     <button class="btn" id="clear-files" type="button">Clear</button>
                   </div>
                 </div>
               </div>
-              <input id="file-input" type="file" multiple hidden>
+              <input id="file-input" type="file" multiple accept="image/*,.pdf,.zip,.fig,.psd,.ai,.eps,.svg,.canva" hidden>
+              <div class="file-summary" id="file-summary" aria-live="polite"></div>
               <div class="file-previews" id="file-previews" aria-live="polite"></div>
             </section>
 
@@ -1415,14 +1487,68 @@
         return file.name.split(".").pop()?.slice(0, 4).toUpperCase() || "FILE";
       }
 
+      function fileCategory(file) {
+        const name = file.name.toLowerCase();
+
+        if (file.type.startsWith("image/")) {
+          return "Artwork";
+        }
+
+        if (file.type === "application/pdf" || name.endsWith(".pdf")) {
+          return "Printable";
+        }
+
+        if (name.endsWith(".zip")) {
+          return "Bundle";
+        }
+
+        if ([".fig", ".psd", ".ai", ".eps", ".svg", ".canva"].some((extension) => name.endsWith(extension))) {
+          return "Source file";
+        }
+
+        return "Asset";
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes < 1024 * 1024) {
+          return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+        }
+
+        return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+      }
+
+      function buildFileId(file) {
+        return `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(16).slice(2)}`;
+      }
+
       function renderFiles() {
         const previewList = document.querySelector("#file-previews");
+        const summary = document.querySelector("#file-summary");
         const count = stagedFiles.length;
+        const totalBytes = stagedFiles.reduce((sum, item) => sum + item.file.size, 0);
+        const imageCount = stagedFiles.filter((item) => item.file.type.startsWith("image/")).length;
+        const listingReadyCount = stagedFiles.filter((item) => item.status === "listing-ready").length;
+
         document.querySelector("#drop-title").textContent = count ? `${count} file${count === 1 ? "" : "s"} staged` : "Drop digital files";
         document.querySelector("#drop-copy").textContent = count ? "Tag, review, and remove staged files before listing prep" : "PNG, PDF, Canva export, or mockup set";
+        summary.classList.toggle("visible", count > 0);
+        summary.innerHTML = count ? `
+          <div class="summary-pill">
+            <span>Total size</span>
+            <strong>${formatFileSize(totalBytes)}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Previews</span>
+            <strong>${imageCount} image${imageCount === 1 ? "" : "s"}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Ready</span>
+            <strong>${listingReadyCount}/${count}</strong>
+          </div>
+        ` : "";
 
         previewList.innerHTML = stagedFiles.map((item, index) => {
-          const size = `${(item.file.size / 1024 / 1024).toFixed(1)} MB`;
+          const size = formatFileSize(item.file.size);
           const preview = item.url
             ? `<img src="${item.url}" alt="">`
             : `<span>${fileKind(item.file)}</span>`;
@@ -1432,7 +1558,20 @@
               <div class="file-thumb">${preview}</div>
               <div class="file-meta">
                 <strong>${escapeHtml(item.file.name)}</strong>
-                <span>${escapeHtml(fileKind(item.file))} &middot; ${size}</span>
+                <span>${escapeHtml(fileKind(item.file))} &middot; ${size} &middot; ${escapeHtml(item.category)}</span>
+                <div class="file-controls">
+                  <select class="field" data-file-status="${index}" aria-label="Status for ${escapeHtml(item.file.name)}">
+                    <option value="needs-review"${item.status === "needs-review" ? " selected" : ""}>Needs review</option>
+                    <option value="listing-ready"${item.status === "listing-ready" ? " selected" : ""}>Listing ready</option>
+                    <option value="mockup-only"${item.status === "mockup-only" ? " selected" : ""}>Mockup only</option>
+                  </select>
+                  <select class="field" data-file-category="${index}" aria-label="Type for ${escapeHtml(item.file.name)}">
+                    ${["Artwork", "Printable", "Bundle", "Source file", "Mockup", "Asset"].map((category) => `
+                      <option value="${category}"${item.category === category ? " selected" : ""}>${category}</option>
+                    `).join("")}
+                  </select>
+                  <input class="field tag-field" data-file-tags="${index}" type="text" value="${escapeHtml(item.tags)}" placeholder="Tags: botanical, phone, lock screen" aria-label="Tags for ${escapeHtml(item.file.name)}">
+                </div>
               </div>
               <button class="icon-btn" type="button" data-remove-file="${index}" aria-label="Remove ${escapeHtml(item.file.name)}">x</button>
             </article>
@@ -1443,8 +1582,12 @@
       function addFiles(fileList) {
         [...fileList].forEach((file) => {
           stagedFiles.push({
+            id: buildFileId(file),
             file,
-            url: file.type.startsWith("image/") ? URL.createObjectURL(file) : ""
+            url: file.type.startsWith("image/") ? URL.createObjectURL(file) : "",
+            category: fileCategory(file),
+            status: "needs-review",
+            tags: ""
           });
         });
 
@@ -1454,6 +1597,34 @@
       const dropZone = document.querySelector("#drop-zone");
       const fileInput = document.querySelector("#file-input");
       document.querySelector("#browse-files").addEventListener("click", () => fileInput.click());
+      document.querySelector("#draft-from-files").addEventListener("click", () => {
+        if (!stagedFiles.length) {
+          fileInput.click();
+          return;
+        }
+
+        const firstFile = stagedFiles[0];
+        const categories = [...new Set(stagedFiles.map((item) => item.category.toLowerCase()))].join(", ");
+        const tags = [...new Set(stagedFiles.flatMap((item) => item.tags.split(",").map((tag) => tag.trim()).filter(Boolean)))];
+
+        products.unshift({
+          title: firstFile.file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
+          category: firstFile.category === "Printable" ? "planners" : "wallpapers",
+          description: `${stagedFiles.length} staged file${stagedFiles.length === 1 ? "" : "s"} ready for ${categories || "digital product"} review${tags.length ? ` with tags: ${tags.slice(0, 4).join(", ")}` : ""}.`,
+          price: "$0",
+          status: stagedFiles.every((item) => item.status === "listing-ready") ? "ready" : "review",
+          label: stagedFiles.every((item) => item.status === "listing-ready") ? "Ready" : "Review",
+          accent: "linear-gradient(135deg, #284f44, #b85d62 58%, #d5a657)"
+        });
+
+        activeCategory = "all";
+        filterButtons.forEach((item) => item.classList.toggle("active", item.dataset.filter === "all"));
+        statusFilter.value = "all";
+        searchInput.value = "";
+        renderProducts();
+        updateStats();
+        renderAnalytics();
+      });
       document.querySelector("#clear-files").addEventListener("click", () => {
         stagedFiles.splice(0).forEach((item) => {
           if (item.url) {
@@ -1476,6 +1647,22 @@
           URL.revokeObjectURL(removed.url);
         }
         renderFiles();
+      });
+      document.querySelector("#file-previews").addEventListener("input", (event) => {
+        if (event.target.matches("[data-file-tags]")) {
+          stagedFiles[Number(event.target.dataset.fileTags)].tags = event.target.value;
+        }
+      });
+      document.querySelector("#file-previews").addEventListener("change", (event) => {
+        if (event.target.matches("[data-file-status]")) {
+          stagedFiles[Number(event.target.dataset.fileStatus)].status = event.target.value;
+          renderFiles();
+        }
+
+        if (event.target.matches("[data-file-category]")) {
+          stagedFiles[Number(event.target.dataset.fileCategory)].category = event.target.value;
+          renderFiles();
+        }
       });
       dropZone.addEventListener("dragover", (event) => {
         event.preventDefault();
