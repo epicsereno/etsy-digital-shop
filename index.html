@@ -3,36 +3,1570 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Etsy Digital Shop</title>
+    <title>Etsy Digital Shop Workspace</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 48px;
-        color: #222;
-        background: #f7f4ef;
+      :root {
+        color-scheme: light;
+        --bg: #f5f1e8;
+        --panel: #fffaf1;
+        --panel-strong: #ffffff;
+        --ink: #1f2523;
+        --muted: #6b6f68;
+        --line: #ded6c7;
+        --green: #28795b;
+        --teal: #146c72;
+        --rose: #b85d62;
+        --gold: #a56d21;
+        --shadow: 0 18px 50px rgba(61, 50, 34, 0.12);
       }
 
-      main {
-        max-width: 760px;
+      body.dark {
+        color-scheme: dark;
+        --bg: #161a18;
+        --panel: #20251f;
+        --panel-strong: #252b25;
+        --ink: #f3efe7;
+        --muted: #b9b2a5;
+        --line: #3a4038;
+        --green: #5fb98e;
+        --teal: #5cb2ba;
+        --rose: #d77d83;
+        --gold: #d5a657;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(135deg, rgba(40, 121, 91, 0.10), transparent 34%),
+          linear-gradient(315deg, rgba(184, 93, 98, 0.10), transparent 32%),
+          var(--bg);
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: 264px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 24px 18px;
+        border-right: 1px solid var(--line);
+        background: rgba(255, 250, 241, 0.86);
+        backdrop-filter: blur(22px);
+      }
+
+      body.dark .sidebar {
+        background: rgba(32, 37, 31, 0.88);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 800;
+        letter-spacing: 0;
+        background: linear-gradient(135deg, var(--green), var(--rose));
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .brand span {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .nav-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 42px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: #343a37;
+        text-decoration: none;
+      }
+
+      body.dark .nav-link {
+        color: #f3efe7;
+      }
+
+      .nav-link[aria-current="page"],
+      .nav-link:hover {
+        background: #efe5d3;
+      }
+
+      body.dark .nav-link[aria-current="page"],
+      body.dark .nav-link:hover {
+        background: #30362f;
+      }
+
+      .nav-icon {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .nav-icon.products {
+        background: var(--green);
+      }
+
+      .nav-icon.listings {
+        background: var(--teal);
+      }
+
+      .nav-icon.marketing {
+        background: var(--rose);
+      }
+
+      .nav-icon.ops {
+        background: var(--gold);
+      }
+
+      .sidebar-footer {
+        position: absolute;
+        right: 18px;
+        bottom: 24px;
+        left: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      body.dark .sidebar-footer {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .sidebar-footer p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .progress {
+        overflow: hidden;
+        height: 8px;
+        border-radius: 999px;
+        background: #e7ded0;
+      }
+
+      body.dark .progress {
+        background: #333a34;
+      }
+
+      .progress span {
+        display: block;
+        width: 68%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--green), var(--teal));
+      }
+
+      .workspace {
+        min-width: 0;
+        padding: 28px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 6px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
       }
 
       h1 {
-        margin: 0 0 12px;
-        font-size: 40px;
+        margin: 0;
+        font-size: clamp(30px, 4vw, 52px);
+        line-height: 1.02;
+        letter-spacing: 0;
       }
 
-      p {
-        font-size: 18px;
+      .topbar p:last-child {
+        max-width: 650px;
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: var(--panel);
+        box-shadow: none;
+      }
+
+      .btn.primary {
+        border-color: var(--green);
+        color: white;
+        background: var(--green);
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 22px;
+        align-items: start;
+      }
+
+      .hero-panel,
+      .panel,
+      .stat,
+      .product-card,
+      .analytics-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 250, 241, 0.82);
+        box-shadow: var(--shadow);
+      }
+
+      body.dark .hero-panel,
+      body.dark .panel,
+      body.dark .stat,
+      body.dark .product-card,
+      body.dark .analytics-panel {
+        background: rgba(32, 37, 31, 0.88);
+      }
+
+      .hero-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 22px;
+        margin-bottom: 22px;
+        padding: 22px;
+        overflow: hidden;
+      }
+
+      .mockup {
+        position: relative;
+        min-height: 254px;
+        border-radius: 8px;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.72), transparent 42%),
+          radial-gradient(circle at 28% 22%, #e6c7c0 0 9%, transparent 10%),
+          radial-gradient(circle at 72% 30%, #a8cbb8 0 12%, transparent 13%),
+          linear-gradient(135deg, #38433c, #7a4146 58%, #d7b16d);
+      }
+
+      .mockup::before,
+      .mockup::after {
+        position: absolute;
+        content: "";
+        border-radius: 8px;
+        background: rgba(255, 250, 241, 0.9);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.15);
+      }
+
+      .mockup::before {
+        top: 34px;
+        left: 34px;
+        width: 124px;
+        height: 168px;
+      }
+
+      .mockup::after {
+        right: 28px;
+        bottom: 34px;
+        width: 150px;
+        height: 96px;
+      }
+
+      .mockup-lines {
+        position: absolute;
+        inset: 62px auto auto 58px;
+        z-index: 1;
+        display: grid;
+        gap: 9px;
+        width: 74px;
+      }
+
+      .mockup-lines span {
+        display: block;
+        height: 7px;
+        border-radius: 999px;
+        background: #d7b16d;
+      }
+
+      .hero-panel h2,
+      .panel h2 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 0;
+      }
+
+      .hero-panel p {
+        max-width: 660px;
+        margin: 12px 0 18px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .quick-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: #39413d;
+        background: #fffaf1;
+      }
+
+      body.dark .chip,
+      body.dark .badge,
+      body.dark .meta-row {
+        color: #f3efe7;
+      }
+
+      body.dark .chip,
+      body.dark .field,
+      body.dark .calendar-item {
+        background-color: #252b25;
+      }
+
+      .chip.active {
+        border-color: var(--teal);
+        color: white;
+        background: var(--teal);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .stat {
+        padding: 16px;
+      }
+
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      .stat em {
+        display: block;
+        margin-top: 8px;
+        color: var(--green);
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 800;
+      }
+
+      .analytics-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
+        margin-bottom: 22px;
+        padding: 18px;
+      }
+
+      .analytics-copy {
+        min-width: 0;
+      }
+
+      .analytics-copy h2 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .analytics-copy p {
+        margin: 8px 0 0;
+        color: var(--muted);
         line-height: 1.5;
+      }
+
+      .chart {
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        height: 170px;
+        padding-top: 12px;
+      }
+
+      .chart-bar {
+        display: grid;
+        align-content: end;
+        justify-items: center;
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        gap: 6px;
+      }
+
+      .chart-bar span:first-child {
+        width: 100%;
+        min-height: 12px;
+        border-radius: 8px 8px 3px 3px;
+        background: linear-gradient(180deg, var(--teal), var(--green));
+      }
+
+      .chart-bar span:last-child {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .top-products {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .top-products li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .top-products li:last-child {
+        border-bottom: 0;
+      }
+
+      .top-products strong,
+      .top-products span {
+        display: block;
+      }
+
+      .top-products span {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .panel + .panel {
+        margin-top: 18px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .search-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 180px;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .field {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink);
+        background: #fffdf8;
+      }
+
+      textarea.field {
+        min-height: 92px;
+        padding-top: 10px;
+        resize: vertical;
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .empty-state {
+        display: none;
+        padding: 24px;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty-state.visible {
+        display: block;
+      }
+
+      .product-card {
+        overflow: hidden;
+        background: var(--panel-strong);
+      }
+
+      .product-art {
+        height: 138px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.58), transparent 44%),
+          var(--accent);
+      }
+
+      .product-body {
+        padding: 14px;
+      }
+
+      .product-body h3 {
+        margin: 0 0 7px;
+        font-size: 16px;
+      }
+
+      .product-body p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .meta-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 14px;
+        color: #39413d;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .side-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .drop-zone {
+        display: grid;
+        place-items: center;
+        min-height: 154px;
+        border: 1px dashed #b9aa95;
+        border-radius: 8px;
+        text-align: center;
+        background:
+          repeating-linear-gradient(45deg, rgba(40, 121, 91, 0.07) 0 10px, transparent 10px 20px),
+          #fffdf8;
+      }
+
+      .drop-zone.is-dragging {
+        border-color: var(--green);
+        background:
+          repeating-linear-gradient(45deg, rgba(20, 108, 114, 0.10) 0 10px, transparent 10px 20px),
+          #f7fff9;
+      }
+
+      body.dark .drop-zone {
+        background:
+          repeating-linear-gradient(45deg, rgba(95, 185, 142, 0.10) 0 10px, transparent 10px 20px),
+          #252b25;
+      }
+
+      .drop-zone strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .drop-zone span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .upload-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .file-previews {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .file-card {
+        display: grid;
+        grid-template-columns: 58px minmax(0, 1fr) 30px;
+        gap: 10px;
+        align-items: center;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-strong);
+      }
+
+      .file-thumb {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        width: 58px;
+        height: 58px;
+        border-radius: 8px;
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--rose), var(--teal));
+      }
+
+      .file-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .file-meta {
+        min-width: 0;
+      }
+
+      .file-meta strong {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+
+      .file-meta span {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .icon-btn {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: var(--panel);
+      }
+
+      .generator-form {
+        display: grid;
+        gap: 10px;
+      }
+
+      .generator-output {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .output-block {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-strong);
+      }
+
+      .output-block strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      .output-block p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .task-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .task-list li {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: var(--green);
+      }
+
+      .status-dot.waiting {
+        background: var(--gold);
+      }
+
+      .status-dot.blocked {
+        background: var(--rose);
+      }
+
+      .task-list strong,
+      .task-list span {
+        display: block;
+      }
+
+      .task-list strong {
+        font-size: 14px;
+      }
+
+      .task-list span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .badge {
+        padding: 5px 8px;
+        border-radius: 999px;
+        color: #39413d;
+        font-size: 12px;
+        font-weight: 800;
+        background: #efe5d3;
+      }
+
+      body.dark .badge {
+        background: #30362f;
+      }
+
+      .calendar {
+        display: grid;
+        gap: 10px;
+      }
+
+      .calendar-item {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffdf8;
+      }
+
+      .date-box {
+        display: grid;
+        place-items: center;
+        height: 48px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 800;
+        background: var(--rose);
+      }
+
+      .calendar-item strong,
+      .calendar-item span {
+        display: block;
+      }
+
+      .calendar-item span {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 1100px) {
+        .app-shell {
+          grid-template-columns: 86px minmax(0, 1fr);
+        }
+
+        .sidebar {
+          padding: 18px 12px;
+        }
+
+        .brand {
+          justify-content: center;
+        }
+
+        .brand div:last-child,
+        .nav-label,
+        .sidebar-footer {
+          display: none;
+        }
+
+        .nav-link {
+          justify-content: center;
+        }
+
+        .content-grid,
+        .hero-panel,
+        .analytics-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid,
+        .product-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .app-shell {
+          display: block;
+        }
+
+        .sidebar {
+          position: static;
+          height: auto;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+          justify-content: flex-start;
+          margin-bottom: 14px;
+        }
+
+        .brand div:last-child,
+        .nav-label {
+          display: block;
+        }
+
+        .nav-list {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .nav-link {
+          justify-content: center;
+          padding: 9px 6px;
+        }
+
+        .nav-icon {
+          display: none;
+        }
+
+        .nav-label {
+          font-size: 12px;
+          font-weight: 800;
+        }
+
+        .workspace {
+          padding: 20px;
+        }
+
+        .topbar {
+          display: grid;
+        }
+
+        .actions {
+          justify-content: stretch;
+        }
+
+        .actions .btn {
+          flex: 1;
+        }
+
+        .stats-grid,
+        .product-grid,
+        .search-row {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-panel,
+        .panel {
+          padding: 16px;
+        }
+
+        .mockup {
+          min-height: 210px;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <h1>Etsy Digital Shop</h1>
-      <p>Digital product workspace for wallpapers, planners, ebooks, listings, marketing, and operations.</p>
-    </main>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Workspace navigation">
+        <div class="brand">
+          <div class="brand-mark">ED</div>
+          <div>
+            <strong>Etsy Digital Shop</strong>
+            <span>Digital product workspace</span>
+          </div>
+        </div>
+
+        <nav>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-link" href="#products" aria-current="page">
+                <span class="nav-icon products">P</span>
+                <span class="nav-label">Products</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#listings">
+                <span class="nav-icon listings">L</span>
+                <span class="nav-label">Listings</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#marketing">
+                <span class="nav-icon marketing">M</span>
+                <span class="nav-label">Marketing</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#operations">
+                <span class="nav-icon ops">O</span>
+                <span class="nav-label">Operations</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p>Launch readiness across product files, listing copy, Pinterest pins, and SOP tracking.</p>
+          <div class="progress" aria-label="Launch readiness 68 percent">
+            <span></span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Command center</p>
+            <h1>Your digital product workspace</h1>
+            <p>Manage wallpapers, planners, ebooks, Etsy listings, marketing assets, and daily production workflows from one focused dashboard.</p>
+          </div>
+          <div class="actions" aria-label="Workspace actions">
+            <button class="btn" id="theme-toggle" type="button">Dark Mode</button>
+            <button class="btn" id="export-csv" type="button">Export CSV</button>
+            <button class="btn primary" id="new-product" type="button">New Product</button>
+          </div>
+        </header>
+
+        <section class="stats-grid" aria-label="Shop stats">
+          <article class="stat">
+            <span>Ready products</span>
+            <strong id="ready-products">42</strong>
+            <em>+8 this week</em>
+          </article>
+          <article class="stat">
+            <span>Active listings</span>
+            <strong id="active-listings">18</strong>
+            <em>6 optimized</em>
+          </article>
+          <article class="stat">
+            <span>Revenue tracked</span>
+            <strong id="revenue-total">$3.8k</strong>
+            <em>+14.2%</em>
+          </article>
+          <article class="stat">
+            <span>Downloads</span>
+            <strong id="download-total">1.2k</strong>
+            <em>94% fulfilled</em>
+          </article>
+        </section>
+
+        <section class="analytics-panel" aria-labelledby="analytics-title">
+          <div class="analytics-copy">
+            <p class="eyebrow">Sales analytics</p>
+            <h2 id="analytics-title">Revenue and downloads by product line</h2>
+            <p>Track which digital products are pulling their weight, then use the trend to decide what gets another bundle, mockup set, or listing refresh.</p>
+            <div class="chart" id="sales-chart" aria-label="Revenue chart"></div>
+          </div>
+          <div>
+            <div class="panel-header">
+              <h2>Top products</h2>
+            </div>
+            <ul class="top-products" id="top-products"></ul>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <div>
+            <section id="listings" class="hero-panel" aria-labelledby="launch-title">
+              <div>
+                <p class="eyebrow">Launch queue</p>
+                <h2 id="launch-title">Dark botanical bundle is nearly listing-ready</h2>
+                <p>The current production batch has final wallpapers, Etsy title drafts, keyword research, and a Pinterest schedule already staged in the workspace.</p>
+                <div class="quick-filters" aria-label="Product filters">
+                  <button class="chip active" type="button" data-filter="all">All</button>
+                  <button class="chip" type="button" data-filter="wallpapers">Wallpapers</button>
+                  <button class="chip" type="button" data-filter="planners">Planners</button>
+                  <button class="chip" type="button" data-filter="ebooks">Ebooks</button>
+                </div>
+              </div>
+              <div class="mockup" aria-label="Layered previews of digital products">
+                <div class="mockup-lines">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </section>
+
+            <section id="products" class="panel" aria-labelledby="products-title">
+              <div class="panel-header">
+                <h2 id="products-title">Product inventory</h2>
+                <button class="btn" type="button">View All</button>
+              </div>
+              <div class="search-row">
+                <input class="field" id="product-search" type="search" value="" placeholder="Search products">
+                <select class="field" id="status-filter" aria-label="Filter by status">
+                  <option value="all">All statuses</option>
+                  <option value="ready">Ready to list</option>
+                  <option value="review">Needs review</option>
+                  <option value="draft">Drafting</option>
+                </select>
+              </div>
+              <div class="product-grid" id="product-grid">
+              </div>
+              <div class="empty-state" id="empty-state">No products match the current filters.</div>
+            </section>
+          </div>
+
+          <aside class="side-stack" aria-label="Workspace side panels">
+            <section class="panel" aria-labelledby="upload-title">
+              <div class="panel-header">
+                <h2 id="upload-title">File intake</h2>
+              </div>
+              <div class="drop-zone" id="drop-zone">
+                <div>
+                  <strong id="drop-title">Drop digital files</strong>
+                  <span id="drop-copy">PNG, PDF, Canva export, or mockup set</span>
+                  <div class="upload-actions">
+                    <button class="btn" id="browse-files" type="button">Browse Files</button>
+                    <button class="btn" id="clear-files" type="button">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <input id="file-input" type="file" multiple hidden>
+              <div class="file-previews" id="file-previews" aria-live="polite"></div>
+            </section>
+
+            <section class="panel" aria-labelledby="generator-title">
+              <div class="panel-header">
+                <h2 id="generator-title">AI listing generator</h2>
+              </div>
+              <form class="generator-form" id="listing-form">
+                <input class="field" id="listing-product" type="text" placeholder="Product name" value="Dark Botanical Wallpaper Pack">
+                <select class="field" id="listing-category" aria-label="Listing category">
+                  <option value="wallpaper">Wallpaper bundle</option>
+                  <option value="planner">Digital planner</option>
+                  <option value="ebook">Ebook template</option>
+                  <option value="mockup">Mockup pack</option>
+                </select>
+                <textarea class="field" id="listing-details" placeholder="Key details">moody floral phone backgrounds, instant download, neutral home screen aesthetic</textarea>
+                <button class="btn primary" type="submit">Generate Listing</button>
+              </form>
+              <div class="generator-output" id="listing-output" aria-live="polite"></div>
+            </section>
+
+            <section id="operations" class="panel" aria-labelledby="ops-title">
+              <div class="panel-header">
+                <h2 id="ops-title">Operations</h2>
+              </div>
+              <ul class="task-list">
+                <li>
+                  <span class="status-dot"></span>
+                  <div>
+                    <strong>SEO research</strong>
+                    <span>Dark botanical keyword set</span>
+                  </div>
+                  <span class="badge">Done</span>
+                </li>
+                <li>
+                  <span class="status-dot waiting"></span>
+                  <div>
+                    <strong>Listing QA</strong>
+                    <span>Pricing, tags, and preview images</span>
+                  </div>
+                  <span class="badge">Next</span>
+                </li>
+                <li>
+                  <span class="status-dot blocked"></span>
+                  <div>
+                    <strong>Mockup export</strong>
+                    <span>Planner bundle thumbnails</span>
+                  </div>
+                  <span class="badge">Hold</span>
+                </li>
+              </ul>
+            </section>
+
+            <section id="marketing" class="panel" aria-labelledby="marketing-title">
+              <div class="panel-header">
+                <h2 id="marketing-title">Marketing calendar</h2>
+              </div>
+              <div class="calendar">
+                <article class="calendar-item">
+                  <div class="date-box">03</div>
+                  <div>
+                    <strong>Pinterest launch pin</strong>
+                    <span>Botanical bundle carousel</span>
+                  </div>
+                </article>
+                <article class="calendar-item">
+                  <div class="date-box" style="background: var(--teal);">07</div>
+                  <div>
+                    <strong>Instagram reel script</strong>
+                    <span>Planner workflow preview</span>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <script>
+      const products = [
+        {
+          title: "Dark Botanical Wallpaper Pack",
+          category: "wallpapers",
+          description: "12 mobile wallpapers with listing copy and tags drafted.",
+          price: "$9",
+          status: "ready",
+          label: "Ready",
+          accent: "linear-gradient(135deg, #1f3028, #87545e 62%, #d1a95f)"
+        },
+        {
+          title: "Celestial Planner Inserts",
+          category: "planners",
+          description: "Weekly PDF inserts with mockups pending review.",
+          price: "$14",
+          status: "review",
+          label: "Review",
+          accent: "linear-gradient(135deg, #e9d8be, #317067 54%, #113f53)"
+        },
+        {
+          title: "Cottagecore Ebook Covers",
+          category: "ebooks",
+          description: "Canva source files, exports, and usage notes grouped.",
+          price: "$11",
+          status: "draft",
+          label: "Draft",
+          accent: "linear-gradient(135deg, #f8efe0, #b85d62 58%, #28795b)"
+        }
+      ];
+
+      const salesData = [
+        { month: "Jan", revenue: 620, downloads: 188 },
+        { month: "Feb", revenue: 760, downloads: 241 },
+        { month: "Mar", revenue: 910, downloads: 286 },
+        { month: "Apr", revenue: 1130, downloads: 352 },
+        { month: "May", revenue: 1380, downloads: 417 }
+      ];
+
+      const grid = document.querySelector("#product-grid");
+      const emptyState = document.querySelector("#empty-state");
+      const searchInput = document.querySelector("#product-search");
+      const statusFilter = document.querySelector("#status-filter");
+      const filterButtons = [...document.querySelectorAll("[data-filter]")];
+      const themeToggle = document.querySelector("#theme-toggle");
+      const stagedFiles = [];
+      let activeCategory = "all";
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        })[character]);
+      }
+
+      function formatCurrency(value) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0
+        }).format(value);
+      }
+
+      function formatCompact(value) {
+        return new Intl.NumberFormat("en-US", {
+          notation: "compact",
+          maximumFractionDigits: 1
+        }).format(value);
+      }
+
+      function updateStats() {
+        const readyProducts = products.filter((product) => product.status === "ready").length;
+        const totalRevenue = salesData.reduce((sum, item) => sum + item.revenue, 0);
+        const totalDownloads = salesData.reduce((sum, item) => sum + item.downloads, 0);
+
+        document.querySelector("#ready-products").textContent = readyProducts;
+        document.querySelector("#active-listings").textContent = products.length;
+        document.querySelector("#revenue-total").textContent = formatCompact(totalRevenue);
+        document.querySelector("#download-total").textContent = formatCompact(totalDownloads);
+      }
+
+      function renderAnalytics() {
+        const chart = document.querySelector("#sales-chart");
+        const topProducts = document.querySelector("#top-products");
+        const maxRevenue = Math.max(...salesData.map((item) => item.revenue));
+
+        chart.innerHTML = salesData.map((item) => {
+          const height = Math.max(12, Math.round((item.revenue / maxRevenue) * 140));
+
+          return `
+            <div class="chart-bar" title="${item.month}: ${formatCurrency(item.revenue)}">
+              <span style="height: ${height}px"></span>
+              <span>${item.month}</span>
+            </div>
+          `;
+        }).join("");
+
+        topProducts.innerHTML = products.slice(0, 3).map((product, index) => {
+          const revenue = salesData[salesData.length - 1 - index]?.revenue || 420;
+
+          return `
+            <li>
+              <div>
+                <strong>${escapeHtml(product.title)}</strong>
+                <span>${escapeHtml(product.category)} &middot; ${escapeHtml(product.label)}</span>
+              </div>
+              <strong>${formatCurrency(revenue)}</strong>
+            </li>
+          `;
+        }).join("");
+      }
+
+      function renderProducts() {
+        const query = searchInput.value.trim().toLowerCase();
+        const status = statusFilter.value;
+        const visibleProducts = products.filter((product) => {
+          const matchesCategory = activeCategory === "all" || product.category === activeCategory;
+          const matchesStatus = status === "all" || product.status === status;
+          const matchesQuery = [product.title, product.description, product.category]
+            .join(" ")
+            .toLowerCase()
+            .includes(query);
+
+          return matchesCategory && matchesStatus && matchesQuery;
+        });
+
+        grid.innerHTML = visibleProducts.map((product) => `
+          <article class="product-card">
+            <div class="product-art" style="--accent: ${product.accent};"></div>
+            <div class="product-body">
+              <h3>${escapeHtml(product.title)}</h3>
+              <p>${escapeHtml(product.description)}</p>
+              <div class="meta-row">
+                <span>${escapeHtml(product.price)}</span>
+                <span>${escapeHtml(product.label)}</span>
+              </div>
+            </div>
+          </article>
+        `).join("");
+
+        emptyState.classList.toggle("visible", visibleProducts.length === 0);
+      }
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeCategory = button.dataset.filter;
+          filterButtons.forEach((item) => item.classList.toggle("active", item === button));
+          renderProducts();
+        });
+      });
+
+      searchInput.addEventListener("input", renderProducts);
+      statusFilter.addEventListener("change", renderProducts);
+
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        const isDark = document.body.classList.contains("dark");
+        themeToggle.textContent = isDark ? "Light Mode" : "Dark Mode";
+        localStorage.setItem("eds-theme", isDark ? "dark" : "light");
+      });
+
+      document.querySelector("#new-product").addEventListener("click", () => {
+        products.unshift({
+          title: "New Digital Product",
+          category: "wallpapers",
+          description: "New item staged for files, mockups, keywords, and listing copy.",
+          price: "$0",
+          status: "draft",
+          label: "Draft",
+          accent: "linear-gradient(135deg, #38433c, #d5a657 55%, #5cb2ba)"
+        });
+        activeCategory = "all";
+        filterButtons.forEach((item) => item.classList.toggle("active", item.dataset.filter === "all"));
+        statusFilter.value = "all";
+        searchInput.value = "";
+        renderProducts();
+        updateStats();
+        renderAnalytics();
+      });
+
+      document.querySelector("#export-csv").addEventListener("click", () => {
+        const header = "title,category,price,status";
+        const rows = products.map((product) => [product.title, product.category, product.price, product.label]
+          .map((value) => `"${value.replaceAll('"', '""')}"`)
+          .join(","));
+        const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "etsy-digital-products.csv";
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      function fileKind(file) {
+        if (file.type.startsWith("image/")) {
+          return "IMG";
+        }
+
+        if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+          return "PDF";
+        }
+
+        return file.name.split(".").pop()?.slice(0, 4).toUpperCase() || "FILE";
+      }
+
+      function renderFiles() {
+        const previewList = document.querySelector("#file-previews");
+        const count = stagedFiles.length;
+        document.querySelector("#drop-title").textContent = count ? `${count} file${count === 1 ? "" : "s"} staged` : "Drop digital files";
+        document.querySelector("#drop-copy").textContent = count ? "Tag, review, and remove staged files before listing prep" : "PNG, PDF, Canva export, or mockup set";
+
+        previewList.innerHTML = stagedFiles.map((item, index) => {
+          const size = `${(item.file.size / 1024 / 1024).toFixed(1)} MB`;
+          const preview = item.url
+            ? `<img src="${item.url}" alt="">`
+            : `<span>${fileKind(item.file)}</span>`;
+
+          return `
+            <article class="file-card">
+              <div class="file-thumb">${preview}</div>
+              <div class="file-meta">
+                <strong>${escapeHtml(item.file.name)}</strong>
+                <span>${escapeHtml(fileKind(item.file))} &middot; ${size}</span>
+              </div>
+              <button class="icon-btn" type="button" data-remove-file="${index}" aria-label="Remove ${escapeHtml(item.file.name)}">x</button>
+            </article>
+          `;
+        }).join("");
+      }
+
+      function addFiles(fileList) {
+        [...fileList].forEach((file) => {
+          stagedFiles.push({
+            file,
+            url: file.type.startsWith("image/") ? URL.createObjectURL(file) : ""
+          });
+        });
+
+        renderFiles();
+      }
+
+      const dropZone = document.querySelector("#drop-zone");
+      const fileInput = document.querySelector("#file-input");
+      document.querySelector("#browse-files").addEventListener("click", () => fileInput.click());
+      document.querySelector("#clear-files").addEventListener("click", () => {
+        stagedFiles.splice(0).forEach((item) => {
+          if (item.url) {
+            URL.revokeObjectURL(item.url);
+          }
+        });
+        fileInput.value = "";
+        renderFiles();
+      });
+      fileInput.addEventListener("change", () => addFiles(fileInput.files));
+      document.querySelector("#file-previews").addEventListener("click", (event) => {
+        const removeButton = event.target.closest("[data-remove-file]");
+
+        if (!removeButton) {
+          return;
+        }
+
+        const [removed] = stagedFiles.splice(Number(removeButton.dataset.removeFile), 1);
+        if (removed?.url) {
+          URL.revokeObjectURL(removed.url);
+        }
+        renderFiles();
+      });
+      dropZone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropZone.classList.add("is-dragging");
+      });
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("is-dragging");
+      });
+      dropZone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        addFiles(event.dataTransfer.files);
+        dropZone.classList.remove("is-dragging");
+      });
+
+      function generateListing({ product, category, details }) {
+        const cleanProduct = product.trim() || "Digital Download Bundle";
+        const cleanDetails = details.trim() || "instant download, easy to use, polished digital product";
+        const title = `${cleanProduct} | Instant Download ${category.replaceAll("-", " ")} | Etsy Seller Ready`;
+        const description = [
+          `Give shoppers a polished ${category} with ${cleanDetails}.`,
+          "This digital listing is positioned for instant delivery, clear buyer expectations, and fast product-page scanning.",
+          "Includes: ready-to-use files, concise usage notes, and a listing-friendly product promise."
+        ].join(" ");
+        const tags = [
+          "digital download",
+          category,
+          "etsy template",
+          "instant access",
+          "printable",
+          "small business",
+          "seller tools",
+          "download bundle",
+          "canva friendly",
+          "shop owner",
+          "creative asset",
+          "planner decor",
+          "digital product"
+        ];
+
+        return { title, description, tags };
+      }
+
+      function renderListingOutput(listing) {
+        const output = document.querySelector("#listing-output");
+
+        output.innerHTML = `
+          <div class="output-block">
+            <strong>Title</strong>
+            <p>${escapeHtml(listing.title)}</p>
+          </div>
+          <div class="output-block">
+            <strong>Description</strong>
+            <p>${escapeHtml(listing.description)}</p>
+          </div>
+          <div class="output-block">
+            <strong>Tags</strong>
+            <p>${listing.tags.map(escapeHtml).join(", ")}</p>
+          </div>
+        `;
+      }
+
+      document.querySelector("#listing-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const listing = generateListing({
+          product: document.querySelector("#listing-product").value,
+          category: document.querySelector("#listing-category").value,
+          details: document.querySelector("#listing-details").value
+        });
+
+        localStorage.setItem("eds-generated-listing", JSON.stringify(listing));
+        renderListingOutput(listing);
+      });
+
+      if (localStorage.getItem("eds-theme") === "dark") {
+        document.body.classList.add("dark");
+        themeToggle.textContent = "Light Mode";
+      }
+
+      const savedListing = localStorage.getItem("eds-generated-listing");
+      if (savedListing) {
+        try {
+          renderListingOutput(JSON.parse(savedListing));
+        } catch {
+          localStorage.removeItem("eds-generated-listing");
+        }
+      }
+
+      renderProducts();
+      updateStats();
+      renderAnalytics();
+      renderFiles();
+    </script>
   </body>
 </html>
-
