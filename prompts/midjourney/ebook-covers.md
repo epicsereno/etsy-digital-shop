@@ -1,0 +1,2 @@
+# Midjourney Ebook Cover Prompts
+

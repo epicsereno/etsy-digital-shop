@@ -1,0 +1,2 @@
+# Midjourney Planner Cover Prompts
+
