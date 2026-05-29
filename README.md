@@ -6,6 +6,8 @@ Master strategy doc and quick-start SOP for digital product production, listing,
 
 Small Go service for digital-product order workflows. It currently exposes a sample sale endpoint for the Dark Botanical Wallpaper Pack.
 
+Run the service:
+
 ```sh
 go run ./services/orders/cmd/ordersd
 ```
@@ -20,4 +22,10 @@ List recorded orders:
 
 ```sh
 curl http://localhost:8080/orders
+```
+
+Run tests:
+
+```sh
+go test ./...
 ```
